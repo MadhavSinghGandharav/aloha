@@ -3,6 +3,8 @@ use super::room::SharedRoom;
 use std::sync::{mpsc::Sender, Arc};
 use std::net::TcpStream;
 use crate::common::{utils::read_from_stream, client::Client};
+use owo_colors::OwoColorize;
+
 
 pub fn handle_client(
     shared_room: SharedRoom,
@@ -20,7 +22,7 @@ pub fn handle_client(
     let stream_cloned = stream.try_clone().unwrap();
     let client = Client::new(username.to_string(), stream_cloned);
 
-    tx.send((username.clone(), "Joined!".to_string())).unwrap();
+    tx.send((username.clone(), "Joined!".bright_green().bold().to_string())).unwrap();
 
     {
         let mut clients_guard = shared_room.lock().unwrap();
@@ -31,7 +33,7 @@ pub fn handle_client(
             Ok(Some(msg)) => msg,
             Ok(None) => {
                 shared_room.lock().unwrap().remove_from_room(&username);
-                tx.send((username.clone(), "Left".to_string())).unwrap();
+                tx.send((username.clone(), "Left!".bright_red().bold().to_string())).unwrap();
                 return Err("client left");
             }
             Err(_) => return Err("Server error: Failed to read message"),
