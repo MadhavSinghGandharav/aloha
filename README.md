@@ -11,7 +11,7 @@
 - 📢 Message broadcasting to all connected users
 - 🔒 Admin recognition (first/localhost client)
 - 🦺 Graceful client disconnection handling
-- 🛠️ Built from scratch using standard Rust libraries
+- 🛠️ Built in Rust using standard libraries and minimal external crates
 
 ---
 
