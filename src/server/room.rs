@@ -1,8 +1,10 @@
 
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex,mpsc::Receiver};
+use std::sync::{Arc, Mutex,mpsc::{Receiver,RecvTimeoutError}};
 use std::io::Write;
 use crate::common::client::Client;
+use std::time::Duration;
+use std::sync::atomic::{Ordering,AtomicBool};
 
 pub type SharedRoom = Arc<Mutex<ChatRoom>>;
 
@@ -27,34 +29,44 @@ impl ChatRoom {
     }
 
 
+    pub fn broadcast(shared_room: &SharedRoom, rx: &Receiver<(Arc<str>, String)>, shutdown: &AtomicBool) {
+        loop {
+            if shutdown.load(Ordering::Acquire) {
+                break;
+            }
 
+            match rx.recv_timeout(Duration::from_millis(500)) {
+                Ok((from, message)) => {
+                    let formatted = format!("{}: {}", from, message);
 
-    pub fn broadcast(shared_room: SharedRoom, rx: Receiver<(Arc<str>, String)>) {
-        for (from, message) in rx {
-            let formatted = format!("{}: {}", from, message);
+                    let mut guard = shared_room.lock().unwrap();
 
-            let mut guard = shared_room.lock().unwrap();
+                    guard.clients.retain(|username, client| {
+                        if username.as_str() == from.as_ref() {
+                            return true;
+                        }
 
-            guard.clients.retain(|username, client| {
-                if username.as_str() == from.as_ref() {
-                    return true; // skip sender
+                        if let Err(_) = client.stream.write_all(&(formatted.len() as u16).to_be_bytes()) {
+                            eprintln!("Failed to send length to {}", username);
+                            return false;
+                        }
+
+                        if let Err(_) = client.stream.write_all(formatted.as_bytes()) {
+                            eprintln!("Failed to send message to {}, removing.", username);
+                            return false;
+                        }
+
+                        true
+                    });
                 }
-
-                if let Err(_) = client.stream.write_all(&(formatted.len() as u16).to_be_bytes()) {
-                    eprintln!("❌ Failed to send length to {}", username);
-                    return false;
+                Err(RecvTimeoutError::Timeout) => continue, // waking up 
+                Err(RecvTimeoutError::Disconnected) => {
+                    println!("Channel disconnected, exiting broadcast loop.");
+                    break;
                 }
-
-                if let Err(_) = client.stream.write_all(formatted.as_bytes()) {
-                    eprintln!("❌ Failed to send message to {}, removing.", username);
-                    return false;
-                }
-
-                true
-            });
+            }
         }
-
-        println!("🔴 Broadcast loop ended — channel closed");
+ 
     }
 
 }

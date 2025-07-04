@@ -6,6 +6,7 @@ mod common;
 use std::env;
 use std::thread;
 use common::utils::LOCAL_HOST;
+use std::process;
 
 fn main() {
     let mut args = env::args();
@@ -19,7 +20,16 @@ fn main() {
         None => {
             // Start server
             thread::spawn(|| {
-                server::listener::start();
+                match server::listener::start(){
+                    Ok(_) => {
+                        println!("\nClosing Server");
+                        process::exit(1);
+                    },
+                    Err(e) => {
+                        eprintln!("\nSever Error: {}",e);
+                        process::exit(1);
+                    }
+                };
             });
 
             // Give server time to start
