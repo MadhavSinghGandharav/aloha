@@ -15,6 +15,38 @@
 
 ---
 
+## 📸 Demo Screenshots
+
+### ▶️ Server Running
+
+![Server](assets/demo-server-start.png)
+
+---
+
+### 👤 Client Ginni
+
+![Client Ginni](assets/demo-client-ginni.png)
+
+---
+
+### 👤 Client Tushar
+
+![Client Tushar](assets/demo-client-tushar.png)
+
+---
+
+## 🛠️ Installation & Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/aloha.git
+cd aloha
+
+```
+
+---
+
 ## 📁 Project Structure
 
 ```bash
@@ -33,3 +65,5 @@ aloha/
 │       ├── client.rs
 │       └── utils.rs
 └── README.md
+```
+
