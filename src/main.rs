@@ -6,6 +6,7 @@ mod common;
 use std::env;
 use std::thread;
 use common::utils::LOCAL_HOST;
+use owo_colors::OwoColorize;
 use std::process;
 
 fn main() {
@@ -14,7 +15,17 @@ fn main() {
 
     match args.next() {
         Some(ip) => {
-            client::connection::connect(&ip);
+            match client::connection::connect(&ip){
+                Ok(_) => {
+                    println!("\n{}","Connection Closed".bright_red().bold());                    
+                    process::exit(1);
+
+                },
+                Err(e) => {
+                    eprintln!("{}",e.bright_red().bold());
+                    process::exit(1);
+                }
+            };
         }
 
         None => {
@@ -22,11 +33,11 @@ fn main() {
             thread::spawn(|| {
                 match server::listener::start(){
                     Ok(_) => {
-                        println!("\nClosing Server");
+                        println!("\n{}","Closing Server".bright_red().bold());
                         process::exit(1);
                     },
                     Err(e) => {
-                        eprintln!("\nSever Error: {}",e);
+                        eprintln!("\n{}: {}","Server Error".bright_red().bold(),e);
                         process::exit(1);
                     }
                 };
@@ -36,7 +47,18 @@ fn main() {
             std::thread::sleep(std::time::Duration::from_millis(200));
 
             // Connect self as admin
-            client::connection::connect(LOCAL_HOST);
+            match client::connection::connect(LOCAL_HOST){
+                Ok(_) => {
+                    println!("\n{}","Connection Closed".bright_red().bold());                    
+                    process::exit(1);
+
+                },
+                Err(e) => {
+                    eprintln!("{}",e.bright_red().bold());
+                    process::exit(1);
+                }
+            };
+
         }
     }
 }

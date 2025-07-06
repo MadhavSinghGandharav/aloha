@@ -4,6 +4,7 @@ use crate::common::utils::{PORT_ADDRESS,get_ip};
 use crate::server::handler::handle_client;
 use super::room::{SharedRoom,ChatRoom};
 use ctrlc;
+use owo_colors::OwoColorize;
 
 pub fn start() -> Result<(),&'static str> {
 
@@ -66,10 +67,11 @@ pub fn start() -> Result<(),&'static str> {
             Ok((stream, _addr)) => {
                 let client_room = Arc::clone(&shared_room);
                 let tx_cloned = tx.clone();
-                
+                let shutdown_client = Arc::clone(&shutdown);
+
                 std::thread::spawn(move || {
-                    if let Err(e) = handle_client(client_room, stream, tx_cloned) {
-                        eprintln!("Client error: {}", e);
+                    if let Err(e) = handle_client(client_room, stream, tx_cloned,shutdown_client) {
+                        eprintln!("Client error: {}", e.bright_red().bold());
                     }
                 });
             }
