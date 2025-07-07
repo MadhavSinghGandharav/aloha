@@ -37,9 +37,7 @@ pub fn handle_client(
         let msg = match read_from_stream(&stream) {
             Ok(Some(msg)) => msg,
             Ok(None) => {
-                shared_room.lock().unwrap().remove_from_room(&username);
-                tx.send((username.clone(), "Left!".bright_red().bold().to_string())).unwrap();
-                return Err("client left");
+                break;
             }
             Err(_) => return Err("Server error: Failed to read message"),
         };

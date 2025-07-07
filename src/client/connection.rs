@@ -1,7 +1,7 @@
 
 use owo_colors::OwoColorize;
 use std::io::Write;
-use std::sync::{Arc, atomic::{AtomicBool,Ordering}};
+use std::sync::{Arc, atomic::AtomicBool};
 use crate::common::utils::{connect_to_stream, prompt};
 use crate::common::client::Client;
 use crate::client::handler;
