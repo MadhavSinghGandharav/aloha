@@ -39,7 +39,7 @@ pub fn start() -> Result<(),&'static str> {
     }
 
     match get_ip() {
-        Some(ip) => println!("Server Started : {}",ip),
+        Some(ip) => println!("Server Started : {}",ip.bright_blue().bold()),
         None => return Err("Unable to fetch IP")
     };
 

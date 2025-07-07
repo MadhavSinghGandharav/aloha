@@ -40,8 +40,7 @@ pub fn connect(ip: &str) -> Result<(), &'static str> {
     
     // Input and Writer thread
     let (tx, rx) = std::sync::mpsc::channel::<String>(); 
-    let input_shutdown = Arc::clone(&shutdown);
-    std::thread::spawn(move || {
+       std::thread::spawn(move || {
         let mut msg = String::new();
         loop {
             msg.clear();
@@ -63,10 +62,8 @@ pub fn connect(ip: &str) -> Result<(), &'static str> {
                 tx.send(trimmed.to_string()).ok();
             }
 
-            if input_shutdown.load(Ordering::Acquire) {
-            break;
+
         }
-    }
     });
 
     // writer 
